@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# PyPI distribution name. Import name is `securevector_sdk_langchain`
+# (distribution and import names are independent, same as scikit-learn /
+# sklearn). Brand-led, framework-suffixed — the descriptive nominative-fair-use
+# pattern, NOT the `langchain-*` prefix namespace reserved for LangChain Inc.'s
+# own partner packages. See README "Trademarks".
+name = "securevector-sdk-langchain"
+version = "0.1.0"
+description = "SecureVector SDK for LangChain — brings the local threat monitor's three controls (tool-call permissions, secret/data-leak detection, threat detection) to every LangChain tool call, with tamper-evident audit logging."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "SecureVector" }]
+keywords = ["langchain", "llm", "security", "ai-agent", "audit", "compliance", "tool-permissions"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+]
+
+# The adapter is a thin interception layer. It depends on:
+#   - securevector-ai-monitor: the local app + the shipped SecureVectorClient
+#     (the detection engine + tamper-evident audit chain live there). One
+#     `pip install securevector-sdk-langchain` brings the adapter AND the app.
+#   - langchain-core: the BaseCallbackHandler surface we hook.
+# Everything else (permission resolution, audit forwarding) uses the stdlib.
+dependencies = [
+    "securevector-ai-monitor>=4.7",
+    "langchain-core>=0.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.urls]
+Homepage = "https://securevector.io"
+Source = "https://github.com/Secure-Vector/securevector-sdk-langchain"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
