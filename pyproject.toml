@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 # pattern, NOT the `langchain-*` prefix namespace reserved for LangChain Inc.'s
 # own partner packages. See README "Trademarks".
 name = "securevector-sdk-langchain"
-version = "0.1.0"
+version = "1.0.0"
 description = "SecureVector SDK for LangChain — brings the local threat monitor's three controls (tool-call permissions, secret/data-leak detection, threat detection) to every LangChain tool call, with tamper-evident audit logging."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -17,7 +17,7 @@ license = { text = "Apache-2.0" }
 authors = [{ name = "SecureVector" }]
 keywords = ["langchain", "llm", "security", "ai-agent", "audit", "compliance", "tool-permissions"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3",
