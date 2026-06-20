@@ -28,11 +28,12 @@ classifiers = [
 #   - securevector-ai-monitor: the local app + the shipped SecureVectorClient
 #     (the detection engine + tamper-evident audit chain live there). One
 #     `pip install securevector-sdk-langchain` brings the adapter AND the app.
-#   - langchain-core: the BaseCallbackHandler surface we hook.
+#   - langchain: v1 provides the documented `wrap_tool_call` middleware (the
+#     primary enforce path) plus langchain-core's callback handler (observe).
 # Everything else (permission resolution, audit forwarding) uses the stdlib.
 dependencies = [
     "securevector-ai-monitor>=4.7",
-    "langchain-core>=0.2",
+    "langchain>=1.0",
 ]
 
 [project.optional-dependencies]

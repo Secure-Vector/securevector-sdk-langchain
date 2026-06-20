@@ -14,29 +14,38 @@ audit chain live in the app, which must be running locally.
 
 ## Quick start
 
-```python
-from securevector_sdk_langchain import install
+**Enforcement (recommended)** — the documented `wrap_tool_call` middleware,
+which can cleanly block a tool before it runs:
 
-install(mode="observe")   # registers a global handler for every chain/agent
+```python
+from securevector_sdk_langchain import secure_middleware
+from langchain.agents import create_agent
+
+agent = create_agent(
+    model, tools,
+    middleware=[secure_middleware(mode="enforce")],
+)
 ```
 
-or attach it to a single run:
+A denied tool is short-circuited with a `ToolMessage` (the model sees a clean
+"blocked by policy" result) — no exceptions, no crashed runs.
+
+**Observe-only logging** for legacy `AgentExecutor` / raw LCEL chains, where the
+middleware surface isn't available:
 
 ```python
 from securevector_sdk_langchain import SecureVectorCallbackHandler
 
-agent.invoke(payload, config={"callbacks": [SecureVectorCallbackHandler()]})
+chain.invoke(payload, config={"callbacks": [SecureVectorCallbackHandler()]})
 ```
 
-or fully zero-config:
-
-```python
-import securevector_sdk_langchain.auto   # reads env, installs globally
-```
+> Why two paths? LangChain **callbacks are an observability surface** — they
+> cannot reliably block a tool call. The **`wrap_tool_call` middleware is the
+> documented interception/short-circuit point**, so enforcement lives there.
 
 ## What happens on every tool call
 
-Before a tool runs (`on_tool_start`), the SDK:
+Before a tool runs, the SDK:
 
 1. **(a) Permissions** — resolves an allow/block verdict for the tool, using the
    app's own precedence: cloud-pushed **synced** policy → local **override** →
@@ -44,9 +53,9 @@ Before a tool runs (`on_tool_start`), the SDK:
 2. **(b)+(c) Secret & threat scan** — sends the serialized tool input through the
    app's `/analyze` pipeline.
 
-After the tool returns (`on_tool_end`), the result is scanned the same way to
-catch secrets / exfiltration in tool output. Every decision is written to the
-app's audit chain tagged `runtime_kind="langchain"`.
+After the tool returns, the result is scanned the same way to catch secrets /
+exfiltration in tool output. Every decision is written to the app's audit chain
+tagged `runtime_kind="langchain"`.
 
 ## observe vs enforce
 
@@ -56,10 +65,11 @@ app's audit chain tagged `runtime_kind="langchain"`.
 | **enforce** (opt-in) | tool runs only if the verdict ≠ block | **tool denied** (fail-closed) |
 
 ```python
-install(mode="enforce")   # blocks denied tools and fails closed if the app is down
+agent = create_agent(model, tools, middleware=[secure_middleware(mode="enforce")])
 ```
 
-Enforce mode prints a one-time disclosure to stderr.
+Enforce mode prints a one-time disclosure to stderr. (Enforcement requires the
+middleware path; the observe-only callback handler always runs in observe mode.)
 
 ## Configuration
 
