@@ -3,6 +3,28 @@
 All notable changes to `securevector-sdk-langchain` are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0]
+
+### Added
+- **LLM cost tracking** (story #185): the SDK now captures LLM token usage and
+  posts it to the local app's Cost Tracking (`POST /api/costs/track`), so
+  LangChain agents appear in the dollar-based cost dashboard alongside proxy
+  agents and respect per-agent budgets.
+  - `cost_tracking_middleware()` — a LangChain v1 `wrap_model_call` middleware;
+    pass it alongside `secure_middleware()` in `create_agent(middleware=[...])`.
+    Reads `AIMessage.usage_metadata` (input/output/cached tokens) after each
+    model call.
+  - `SecureVectorCallbackHandler` now also captures usage via `on_llm_end` for
+    legacy `AgentExecutor` / raw LCEL chains (and `.auto` mode).
+  - Provider + model-id normalization mirrors the app's pricing table
+    (`provider/model_id` exact match), including versioned-model aliases, so
+    dollar cost resolves instead of landing as `pricing_known=false`.
+  - Attribution: records post as `agent_id` `"langchain-agent"` by default;
+    override per-agent via `cost_tracking_middleware(agent_id=...)` or
+    `SECUREVECTOR_SDK_AGENT_ID`.
+  - Best-effort like audit forwarding: an unreachable app or unknown model
+    never breaks the agent.
+
 ## [1.0.0]
 
 ### Added

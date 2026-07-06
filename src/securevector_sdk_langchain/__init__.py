@@ -10,7 +10,16 @@ Enforcement (recommended) — the documented ``wrap_tool_call`` middleware::
         middleware=[secure_middleware(mode="enforce")],
     )
 
-Observe-only logging for legacy AgentExecutor / raw LCEL chains::
+LLM cost tracking — add ``cost_tracking_middleware()`` to post token usage to
+the app's Cost Tracking (dollar cost via the app's pricing table)::
+
+    agent = create_agent(
+        model, tools,
+        middleware=[secure_middleware(mode="enforce"), cost_tracking_middleware()],
+    )
+
+Observe-only logging for legacy AgentExecutor / raw LCEL chains (also captures
+LLM token usage via ``on_llm_end``)::
 
     from securevector_sdk_langchain import SecureVectorCallbackHandler
     chain.invoke(payload, config={"callbacks": [SecureVectorCallbackHandler()]})
@@ -27,6 +36,7 @@ from typing import Optional
 
 from ._version import __version__
 from .config import Config
+from .costs import cost_tracking_middleware
 from .errors import AppUnreachable, SecureVectorError, ToolBlocked
 from .handler import SecureVectorCallbackHandler
 from .middleware import secure_middleware
@@ -36,6 +46,7 @@ log = logging.getLogger("securevector_sdk_langchain")
 __all__ = [
     "__version__",
     "secure_middleware",
+    "cost_tracking_middleware",
     "install",
     "SecureVectorCallbackHandler",
     "Config",
